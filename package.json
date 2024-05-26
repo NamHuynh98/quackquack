@@ -1,0 +1,26 @@
+{
+  "name": "cheat",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@types/node": "^18.6.1",
+    "axios": "^1.7.2",
+    "node-fetch": "^3.3.2",
+    "nodemon": "^2.0.19",
+    "qs": "^6.12.1",
+    "ts-node": "^10.9.2",
+    "tsc-watch": "^6.2.0",
+    "typescript": "^5.4.5"
+  },
+  "scripts": {
+    "start": "node index",
+    "dev": "nodemon run.ts",
+    "compile": "tsc-watch ",
+    "start:dev": "npx nodemon",
+    "start:demo": "npm run build && node build/index.js"
+  },
+  "devDependencies": {
+    "@types/qs": "^6.9.15"
+  }
+}
