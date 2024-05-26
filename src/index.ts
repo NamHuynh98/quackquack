@@ -7,6 +7,7 @@ import {
   collectDuck,
   removeDuck,
   maxDuck,
+  checkIn,
 } from "./api";
 
 interface Duck {
@@ -19,7 +20,7 @@ interface Duck {
   };
 }
 
-let listNestRes: { id: string; type_egg: number }[] = [];
+let listNestRes: { id: string; type_egg: number; finish_time: number }[] = [];
 let listDuck: Duck[] = [];
 let maxDuckNum: number = 0;
 
@@ -69,8 +70,13 @@ const collectAndHatch = () => {
   } else setTimeout(() => getListReloadFn(), 1e3);
 };
 
-const handleCollect = (egg: { id: string; type_egg: number }) => {
-  if (egg.type_egg) setTimeout(() => collectFn(egg.id), 1e3);
+const handleCollect = (egg: {
+  id: string;
+  type_egg: number;
+  finish_time: number;
+}) => {
+  if (egg.finish_time) collectDuckFn(egg.id);
+  else if (egg.type_egg) setTimeout(() => collectFn(egg.id), 1e3);
   else {
     listNestRes = listNestRes.filter((n) => n.id !== egg.id);
     setTimeout(() => collectAndHatch(), 1e3);
@@ -159,7 +165,21 @@ const removeDuckFn = (duck_id: string) => {
     });
 };
 
+const checkInFn = () => {
+  checkIn()
+    .then(() => {
+      setTimeout(() => {
+        checkInFn();
+      }, 60 * 60 * 24 * 1000);
+    })
+    .catch((err) => {
+      console.log(err);
+      //   checkInFn();
+    });
+};
+
 const init = () => {
+  checkInFn();
   maxDuck()
     .then((res: any) => {
       maxDuckNum = Number(res?.data?.data.max_duck);
