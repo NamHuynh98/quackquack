@@ -1,341 +1,258 @@
-import fetch from "node-fetch";
+const TELEGRAM_USER = require("./token.json");
+let ACCESS_TOKEN = TELEGRAM_USER.state.token;
 
-const ACCESS_TOKEN =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI3MDI0NCwidGltZXN0YW1wIjoxNzE2Njg5NDgwMzgxLCJ0eXBlIjoxLCJpYXQiOjE3MTY2ODk0ODAsImV4cCI6MTcxNzI5NDI4MH0.5tly6ASREnRqE-adVtvR6xusEBSsDP2oHOE_rN_zLkQ";
 let listColect = [];
 let listDuck = [];
-let listNest = [];
 
 Array.prototype.random = function () {
   return this[Math.floor(Math.random() * this.length)];
 };
 
-function rewardGoldenDuck() {
-  fetch("https://api.quackquack.games/golden-duck/reward", {
-    headers: {
-      accept: "*/*",
-      "accept-language":
-        "vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7,fr-FR;q=0.6,fr;q=0.5",
-      authorization: "Bearer " + ACCESS_TOKEN,
-      "if-none-match": 'W/"36-+OxO+FdzxsIHf1uprC0D8TxXVCw"',
-      origin: "https://dd42189ft3pck.cloudfront.net",
-      priority: "u=1, i",
-      referer: "https://dd42189ft3pck.cloudfront.net/",
-      "sec-ch-ua":
-        '"Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"',
-      "sec-ch-ua-mobile": "?0",
-      "sec-ch-ua-platform": '"macOS"',
-      "sec-fetch-dest": "empty",
-      "sec-fetch-mode": "cors",
-      "sec-fetch-site": "cross-site",
-      "user-agent":
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
-    },
-    body: null,
-    method: "GET",
-  })
-    .then((response) => response.json())
-    .then((res) => {
-      console.log("reward: " + JSON.stringify(res));
-    })
-    .catch((error) => {
-      console.log("ERROR", error);
+async function getTotalEgg() {
+  try {
+    let response = await fetch("https://api.quackquack.games/balance/get", {
+      headers: {
+        accept: "/",
+        "accept-language": "en-US,en;q=0.9,vi;q=0.8",
+        authorization: "Bearer " + ACCESS_TOKEN,
+      },
+      body: null,
+      method: "GET",
     });
+    let data = await response.json();
+    if (data.error_code !== "") console.log(data.error_code);
+
+    console.log("-----------------------------------");
+    data.data.data.map((item) => {
+      if (item.symbol === "PET") console.log(`Ban dang co: ${item.balance} 🐸`);
+      if (item.symbol === "EGG") console.log(`Ban dang co: ${item.balance} 🥚`);
+    });
+    console.log("-----------------------------------");
+    getListCollectEgg();
+  } catch (error) {
+    console.log("Mat ket noi getTotalEgg, thu lai sau 3s");
+    setTimeout(getTotalEgg, 3e3);
+  }
 }
 
-function hatchEgg(nest_id) {
-  fetch("https://api.quackquack.games/nest/hatch", {
-    headers: {
-      accept: "*/*",
-      "accept-language":
-        "vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7,fr-FR;q=0.6,fr;q=0.5",
-      authorization: "Bearer " + ACCESS_TOKEN,
-      "content-type": "application/x-www-form-urlencoded",
-      priority: "u=1, i",
-      "sec-ch-ua":
-        '"Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"',
-      "sec-ch-ua-mobile": "?0",
-      "sec-ch-ua-platform": '"macOS"',
-      "sec-fetch-dest": "empty",
-      "sec-fetch-mode": "cors",
-      "sec-fetch-site": "cross-site",
-      Referer: "https://dd42189ft3pck.cloudfront.net/",
-      "Referrer-Policy": "strict-origin-when-cross-origin",
-    },
-    body: `nest_id=${nest_id}`,
-    method: "POST",
-  })
-    .then((response) => response.json())
-    .then((res) => {
-      console.log("ấp trứng: " + nest_id);
-    })
-    .catch((error) => {
-      console.log("ERROR", error);
-    });
-}
+async function getListCollectEgg() {
+  try {
+    listColect = [];
+    listDuck = [];
 
-function collectDuck(nest_id) {
-  fetch("https://api.quackquack.games/nest/collect-duck", {
-    headers: {
-      accept: "*/*",
-      "accept-language":
-        "vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7,fr-FR;q=0.6,fr;q=0.5",
-      authorization: "Bearer " + ACCESS_TOKEN,
-      "content-type": "application/x-www-form-urlencoded",
-      priority: "u=1, i",
-      "sec-ch-ua":
-        '"Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"',
-      "sec-ch-ua-mobile": "?0",
-      "sec-ch-ua-platform": '"macOS"',
-      "sec-fetch-dest": "empty",
-      "sec-fetch-mode": "cors",
-      "sec-fetch-site": "cross-site",
-      Referer: "https://dd42189ft3pck.cloudfront.net/",
-      "Referrer-Policy": "strict-origin-when-cross-origin",
-    },
-    body: `nest_id=${nest_id}`,
-    method: "POST",
-  })
-    .then((response) => response.json())
-    .then((res) => {
-      console.log("nhận vịt: " + nest_id);
-    })
-    .catch((error) => {
-      console.log("ERROR", error);
-    });
-}
-
-function removeDuck(duck_id) {
-  fetch("https://api.quackquack.games/duck/remove", {
-    headers: {
-      accept: "*/*",
-      "accept-language":
-        "vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7,fr-FR;q=0.6,fr;q=0.5",
-      authorization: "Bearer " + ACCESS_TOKEN,
-      "content-type": "application/x-www-form-urlencoded",
-      priority: "u=1, i",
-      "sec-ch-ua":
-        '"Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"',
-      "sec-ch-ua-mobile": "?0",
-      "sec-ch-ua-platform": '"macOS"',
-      "sec-fetch-dest": "empty",
-      "sec-fetch-mode": "cors",
-      "sec-fetch-site": "cross-site",
-      Referer: "https://dd42189ft3pck.cloudfront.net/",
-      "Referrer-Policy": "strict-origin-when-cross-origin",
-    },
-    body: `ducks={"ducks":[${duck_id}]}"`,
-    method: "POST",
-  })
-    .then((response) => response.json())
-    .then((res) => {
-      console.log("xoá vịt: " + nest_id);
-    })
-    .catch((error) => {
-      console.log("ERROR", error);
-    });
-}
-
-function maxDuck() {
-  fetch("https://api.quackquack.games/nest/max-duck", {
-    headers: {
-      accept: "*/*",
-      "accept-language":
-        "vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7,fr-FR;q=0.6,fr;q=0.5",
-      authorization: "Bearer " + ACCESS_TOKEN,
-      "if-none-match": 'W/"28-B0TmwhSNIzaTpMH0Y69eFlC1QdY"',
-      priority: "u=1, i",
-      "sec-ch-ua":
-        '"Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"',
-      "sec-ch-ua-mobile": "?0",
-      "sec-ch-ua-platform": '"macOS"',
-      "sec-fetch-dest": "empty",
-      "sec-fetch-mode": "cors",
-      "sec-fetch-site": "cross-site",
-      Referer: "https://dd42189ft3pck.cloudfront.net/",
-      "Referrer-Policy": "strict-origin-when-cross-origin",
-    },
-    body: null,
-    method: "GET",
-  })
-    .then((response) => response.json())
-    .then((res) => {
-      console.log("max vịt: " + res);
-    })
-    .catch((error) => {
-      console.log("ERROR", error);
-    });
-}
-
-function getTotalEgg() {
-  fetch("https://api.quackquack.games/balance/get", {
-    headers: {
-      accept: "*/*",
-      "accept-language": "en-US,en;q=0.9,vi;q=0.8",
-      authorization: "Bearer " + ACCESS_TOKEN,
-      "if-none-match": 'W/"1a9-I7Onn3jBU9AHo0MlzSY8mMECNvQ"',
-      priority: "u=1, i",
-      "sec-ch-ua":
-        '"Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"',
-      "sec-ch-ua-mobile": "?0",
-      "sec-ch-ua-platform": '"Windows"',
-      "sec-fetch-dest": "empty",
-      "sec-fetch-mode": "cors",
-      "sec-fetch-site": "cross-site",
-      Referer: "https://dd42189ft3pck.cloudfront.net/",
-      "Referrer-Policy": "strict-origin-when-cross-origin",
-    },
-    body: null,
-    method: "GET",
-  })
-    .then((response) => response.json())
-    .then((res) => {
-      // console.log(res);
-      res.data.data.map((item) => {
-        if (item.symbol === "EGG") {
-          console.log("");
-          console.log("Da thu thap", Number(item.balance), "trung");
-          console.log("");
-        }
-      });
-    })
-    .catch((error) => {
-      console.log("ERROR", error);
-    });
-}
-
-function getListReload() {
-  fetch("https://api.quackquack.games/nest/list-reload", {
-    headers: {
-      accept: "*/*",
-      "accept-language": "en-US,en;q=0.9,vi;q=0.8",
-      authorization: "Bearer " + ACCESS_TOKEN,
-      "if-none-match": 'W/"1218-LZvWPzXbQkzjfWJ5mauEo0z3f9c"',
-      priority: "u=1, i",
-      "sec-ch-ua":
-        '"Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"',
-      "sec-ch-ua-mobile": "?0",
-      "sec-ch-ua-platform": '"Windows"',
-      "sec-fetch-dest": "empty",
-      "sec-fetch-mode": "cors",
-      "sec-fetch-site": "cross-site",
-      Referer: "https://dd42189ft3pck.cloudfront.net/",
-      "Referrer-Policy": "strict-origin-when-cross-origin",
-    },
-    body: null,
-    method: "GET",
-  })
-    .then((response) => response.json())
-    .then((res) => {
-      // console.log(res);
-
-      // listDuck = structuredClone(res.data.duck.map((item) => item.id));
-      // listColect = structuredClone(res.data.nest.map((item) => item.id));
-      if (listDuck.length === 0) {
-        res.data.duck.map((item) => {
-          listDuck.push(item.id);
-        });
+    let response = await fetch(
+      "https://api.quackquack.games/nest/list-reload",
+      {
+        headers: {
+          accept: "/",
+          "accept-language": "en-US,en;q=0.9,vi;q=0.8",
+          authorization: "Bearer " + ACCESS_TOKEN,
+        },
+        body: null,
+        method: "GET",
       }
+    );
+    let data = await response.json();
+    if (data.error_code !== "") console.log(data.error_code);
 
-      res.data.nest.map((item) => {
-        // console.log(item);
-        if (item.type_egg) listColect.push(item.id);
-      });
-
-      console.log("So trung co the thu thap:", listColect.length);
-      console.log(listColect);
-      console.log("");
-    })
-    .catch((error) => {
-      console.log("ERROR", error);
+    data.data.duck.map((item) => {
+      listDuck.push(item);
     });
+
+    data.data.nest.map((item) => {
+      if (item.type_egg) listColect.push(item);
+    });
+
+    let eggs = listColect.map((i) => i.id);
+
+    if (listColect.length > 0) {
+      console.log(`So 🥚 co the thu thap: ${listColect.length}`, eggs);
+      collect();
+    }
+  } catch (error) {
+    console.log("Mat ket noi getListCollectEgg, thu lai sau 3s");
+    setTimeout(getListCollectEgg, 3e3);
+  }
 }
 
-function collect() {
-  if (listColect.length === 0) return setTimeout(collect, 1e3);
+async function collect() {
+  try {
+    if (listColect.length === 0) return getTotalEgg();
 
-  const egg = listColect[0];
+    const egg = listColect[0];
 
-  fetch("https://api.quackquack.games/nest/collect", {
-    headers: {
-      accept: "*/*",
-      "accept-language": "en-US,en;q=0.9,vi;q=0.8",
-      authorization: "Bearer " + ACCESS_TOKEN,
-      "content-type": "application/x-www-form-urlencoded",
-      priority: "u=1, i",
-      "sec-ch-ua":
-        '"Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"',
-      "sec-ch-ua-mobile": "?0",
-      "sec-ch-ua-platform": '"Windows"',
-      "sec-fetch-dest": "empty",
-      "sec-fetch-mode": "cors",
-      "sec-fetch-site": "cross-site",
-      Referer: "https://dd42189ft3pck.cloudfront.net/",
-      "Referrer-Policy": "strict-origin-when-cross-origin",
-    },
-    body: "nest_id=" + egg,
-    method: "POST",
-  })
-    .then((response) => response.json())
-    .then((res) => {
-      console.log("Thu thap thanh cong trung", egg);
-      layEgg(egg);
-    })
-    .catch((error) => {
-      console.log("ERROR", error);
-      setTimeout(() => collect(egg), 1e3);
+    let response = await fetch("https://api.quackquack.games/nest/collect", {
+      headers: {
+        accept: "/",
+        "accept-language": "en-US,en;q=0.9,vi;q=0.8",
+        authorization: "Bearer " + ACCESS_TOKEN,
+        "content-type": "application/x-www-form-urlencoded",
+      },
+      body: "nest_id=" + egg.id,
+      method: "POST",
     });
+    let data = await response.json();
+    // console.log(data);
+
+    if (data.error_code !== "") console.log(data.error_code);
+
+    const duck = getDuckToLay();
+    layEgg(egg, duck);
+  } catch (error) {
+    // console.log("collect error:", error);
+    console.log("Mat ket noi collect, thu lai sau 3s");
+    setTimeout(collect, 3e3);
+  }
 }
 
-function layEgg(egg) {
-  const duck = listDuck.random();
-  //   console.log(duck);
-  fetch("https://api.quackquack.games/nest/lay-egg", {
-    headers: {
-      accept: "*/*",
-      "accept-language": "en-US,en;q=0.9,vi;q=0.8",
-      authorization: "Bearer " + ACCESS_TOKEN,
-      "content-type": "application/x-www-form-urlencoded",
-      priority: "u=1, i",
-      "sec-ch-ua":
-        '"Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"',
-      "sec-ch-ua-mobile": "?0",
-      "sec-ch-ua-platform": '"Windows"',
-      "sec-fetch-dest": "empty",
-      "sec-fetch-mode": "cors",
-      "sec-fetch-site": "cross-site",
-      Referer: "https://dd42189ft3pck.cloudfront.net/",
-      "Referrer-Policy": "strict-origin-when-cross-origin",
-    },
-    body: "nest_id=" + egg + "&duck_id=" + duck,
-    method: "POST",
-  })
-    .then((response) => response.json())
-    .then((res) => {
-      //   console.log(res);
-      getTotalEgg();
+function getDuckToLay() {
+  let duck = null;
+  let now = Number((Date.now() / 1e3).toFixed(0));
+
+  listDuck.forEach((duck) => {
+    if (duck.last_active_time < now) now = duck.last_active_time;
+  });
+  listDuck.map((item) => {
+    if (item.last_active_time === now) duck = item;
+  });
+
+  return duck;
+}
+
+async function layEgg(egg, duck) {
+  try {
+    // console.log(${duck.id}:${egg.id});
+
+    let response = await fetch("https://api.quackquack.games/nest/lay-egg", {
+      headers: {
+        accept: "/",
+        "accept-language": "en-US,en;q=0.9,vi;q=0.8",
+        authorization: "Bearer " + ACCESS_TOKEN,
+        "content-type": "application/x-www-form-urlencoded",
+      },
+      body: "nest_id=" + egg.id + "&duck_id=" + duck.id,
+      method: "POST",
+    });
+    let data = await response.json();
+    // console.log(data);
+
+    if (data.error_code !== "") {
+      console.log(data.error_code);
+      const duck = getDuckToLay();
+      layEgg(egg, duck);
+    } else {
+      console.log(`Da thu thap 🥚 ${egg.id}`);
       listColect.shift();
+      listDuck = listDuck.filter((d) => d.id !== duck.id);
       setTimeout(collect, 1e3);
-    })
-    .catch((error) => {
-      console.log("ERROR", error);
-      setTimeout(() => layEgg(egg), 1e3);
-    });
+    }
+  } catch (error) {
+    // console.log("layEgg error:", error);
+    console.log("Mat ket noi layEgg, thu lai sau 3s");
+    setTimeout(() => {
+      layEgg(egg, duck);
+    }, 3e3);
+  }
 }
 
-getTotalEgg();
-getListReload();
+getGoldDuckInfo().then(getTotalEgg);
 
-setInterval(() => {
-  getListReload();
-}, 5e3);
+setInterval(() => console.clear(), 3e5);
 
-setInterval(() => {
-  rewardGoldenDuck();
-}, 10e3);
+async function getGoldDuckInfo() {
+  try {
+    let response = await fetch(
+      "https://api.quackquack.games/golden-duck/info",
+      {
+        headers: {
+          accept: "/",
+          "accept-language": "en-US,en;q=0.9,vi;q=0.8",
+          authorization: "Bearer " + ACCESS_TOKEN,
+        },
+        body: null,
+        method: "GET",
+      }
+    );
+    let data = await response.json();
 
-// setInterval(() => {
-//   collect();
-// }, 15 * 60000);
+    if (data.error_code !== "") console.log(data.error_code);
 
-collect();
+    console.log(``);
+    if (data.data.time_to_golden_duck !== 0) {
+      let nextGoldDuck = data.data.time_to_golden_duck;
+      console.log(`🐙 ${Number(nextGoldDuck / 60).toFixed(0)} phut nua gap`);
+      console.log(``);
+      setTimeout(getGoldDuckInfo, nextGoldDuck * 1e3);
+    } else getGoldDuckReward();
+  } catch (error) {
+    console.log("Mat ket noi getGoldDuckInfo, thu lai sau 3s");
+    setTimeout(getGoldDuckInfo, 3e3);
+  }
+}
+
+async function getGoldDuckReward() {
+  try {
+    let response = await fetch(
+      "https://api.quackquack.games/golden-duck/reward",
+      {
+        headers: {
+          accept: "/",
+          "accept-language": "en-US,en;q=0.9,vi;q=0.8",
+          authorization: "Bearer " + ACCESS_TOKEN,
+        },
+        body: null,
+        method: "GET",
+      }
+    );
+    let data = await response.json();
+
+    if (data.error_code !== "") console.log(data.error_code);
+
+    if (data.data.type === 0) {
+      console.log(`🐙 Chuc ban may man lan sau`);
+      getGoldDuckInfo();
+    }
+
+    if (data.data.type === 2 || data.data.type === 3) claimGoldDuck(data.data);
+  } catch (error) {
+    console.log("Mat ket noi getGoldDuckReward, thu lai sau 3s");
+    setTimeout(getGoldDuckReward, 3e3);
+  }
+}
+
+function infoGoldDuck(data) {
+  if (data.type === 1) return { label: "TON", amount: data.amount };
+  if (data.type === 2) return { label: "PEPET", amount: data.amount };
+  if (data.type === 3) return { label: "EGG", amount: data.amount };
+  if (data.type === 4) return { label: "TRU", amount: data.amount };
+}
+
+async function claimGoldDuck(gDuck) {
+  try {
+    let response = await fetch(
+      "https://api.quackquack.games/golden-duck/claim",
+      {
+        headers: {
+          accept: "/",
+          "accept-language": "en-US,en;q=0.9,vi;q=0.8",
+          authorization: "Bearer " + ACCESS_TOKEN,
+          "content-type": "application/x-www-form-urlencoded",
+        },
+        body: "type=1",
+        method: "POST",
+      }
+    );
+    let data = await response.json();
+
+    if (data.error_code !== "") console.log(data.error_code);
+
+    let info = infoGoldDuck(gDuck);
+    console.log(`🐙 ${info.amount} ${info.label}`);
+    console.log();
+
+    getGoldDuckInfo();
+  } catch (error) {
+    console.log("Mat ket noi claimGoldDuck, thu lai sau 3s");
+    setTimeout(claimGoldDuck, 3e3);
+  }
+}

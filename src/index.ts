@@ -179,16 +179,18 @@ const checkInFn = () => {
 };
 
 const init = () => {
-  checkInFn();
-  maxDuck()
-    .then((res: any) => {
-      maxDuckNum = Number(res?.data?.data.max_duck);
-      getListReloadFn();
-    })
-    .catch((err) => {
-      console.log(err);
-      init();
-    });
+  maxDuckNum = 17;
+  getListReloadFn();
+  // checkInFn();
+  // maxDuck()
+  //   .then((res: any) => {
+  //     maxDuckNum = Number(res?.data?.data.max_duck);
+  //     getListReloadFn();
+  //   })
+  //   .catch((err) => {
+  //     console.log(err);
+  //     init();
+  //   });
 };
 
 init();
