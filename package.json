@@ -14,8 +14,7 @@
     "typescript": "^5.4.5"
   },
   "scripts": {
-    "start": "node index",
-    "dev": "nodemon run.ts",
+    "dev": "nodemon src/index.ts",
     "compile": "tsc-watch ",
     "start:dev": "npx nodemon",
     "start:demo": "npm run build && node build/index.js"
